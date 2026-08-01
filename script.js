@@ -29,29 +29,30 @@ function createColor(num) {
 
 
 // 数字から図形を決定
+// 四角多め・丸少なめ
 function getShape(value) {
 
   const type = value % 10;
 
+
   if (
     type === 1 ||
+    type === 2 ||
     type === 4 ||
-    type === 7
+    type === 7 ||
+    type === 9
   ) {
     return "square";
   }
 
 
-  if (
-    type === 2 ||
-    type === 5 ||
-    type === 8
-  ) {
+  if (type === 5) {
     return "circle";
   }
 
 
   return "none";
+
 }
 
 
@@ -61,14 +62,13 @@ function createIcon(value) {
 
   icon.innerHTML = "";
 
-  // 背景透明
   icon.style.background = "transparent";
 
 
   let num;
 
 
-  // 数値なら直接使用
+  // 数字ならそのまま使用
   if (/^[0-9]+$/.test(value)) {
 
     num = Number(value);
@@ -80,8 +80,8 @@ function createIcon(value) {
   }
 
 
-  const color = createColor(num);
 
+  const color = createColor(num);
 
   const size = 50;
 
@@ -89,14 +89,14 @@ function createIcon(value) {
   let pattern = [];
 
 
-  // 左3列を作る
+
+  // 左側3列を作成
   for (let y = 0; y < 5; y++) {
 
     pattern[y] = [];
 
 
     for (let x = 0; x < 3; x++) {
-
 
       num =
         (num * 1103515245 + 12345)
@@ -107,13 +107,13 @@ function createIcon(value) {
         num % 10;
 
     }
+
   }
 
 
 
   // 左右対称で描画
   for (let y = 0; y < 5; y++) {
-
 
     for (let x = 0; x < 5; x++) {
 
@@ -142,6 +142,7 @@ function createIcon(value) {
 
       // 四角
       if (shape === "square") {
+
 
         const rect =
           document.createElementNS(
@@ -185,6 +186,7 @@ function createIcon(value) {
       // 丸
       if (shape === "circle") {
 
+
         const circle =
           document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -197,15 +199,18 @@ function createIcon(value) {
           x * size + size / 2
         );
 
+
         circle.setAttribute(
           "cy",
           y * size + size / 2
         );
 
+
         circle.setAttribute(
           "r",
           size / 2
         );
+
 
         circle.setAttribute(
           "fill",
@@ -246,7 +251,6 @@ generate.onclick = () => {
 // SVGダウンロード
 document.getElementById("downloadSVG").onclick = () => {
 
-
   const blob =
     new Blob(
       [currentSVG],
@@ -280,15 +284,12 @@ document.getElementById("downloadSVG").onclick = () => {
 
 
 
-
 // 透明PNGダウンロード
 document.getElementById("downloadPNG").onclick = () => {
-
 
   const svgData =
     new XMLSerializer()
       .serializeToString(icon);
-
 
 
   const canvas =
@@ -303,10 +304,8 @@ document.getElementById("downloadPNG").onclick = () => {
     canvas.getContext("2d");
 
 
-
   const img =
     new Image();
-
 
 
   const blob =
@@ -326,7 +325,6 @@ document.getElementById("downloadPNG").onclick = () => {
   img.onload = () => {
 
 
-    // 背景を書かず透明維持
     ctx.drawImage(
       img,
       0,
@@ -350,7 +348,6 @@ document.getElementById("downloadPNG").onclick = () => {
 
     a.href = png;
 
-
     a.download =
       "icon-transparent.png";
 
@@ -366,5 +363,6 @@ document.getElementById("downloadPNG").onclick = () => {
 
 
 
-// 最初の表示
+
+// 初期アイコン
 createIcon("hello");
