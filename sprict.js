@@ -5,7 +5,7 @@ const icon = document.getElementById("icon");
 let currentSVG = "";
 
 
-// 文字列を数値へ変換
+// 文字を数値へ変換
 function stringToNumber(str) {
   let num = 0;
 
@@ -17,7 +17,7 @@ function stringToNumber(str) {
 }
 
 
-// 数値から色を作成
+// 数値から色生成
 function createColor(num) {
 
   const hue = num % 360;
@@ -61,11 +61,14 @@ function createIcon(value) {
 
   icon.innerHTML = "";
 
+  // 背景透明
+  icon.style.background = "transparent";
+
 
   let num;
 
 
-  // 数字だけならそのまま使用
+  // 数値なら直接使用
   if (/^[0-9]+$/.test(value)) {
 
     num = Number(value);
@@ -77,7 +80,6 @@ function createIcon(value) {
   }
 
 
-
   const color = createColor(num);
 
 
@@ -87,8 +89,7 @@ function createIcon(value) {
   let pattern = [];
 
 
-
-  // 左半分3列を作成
+  // 左3列を作る
   for (let y = 0; y < 5; y++) {
 
     pattern[y] = [];
@@ -97,20 +98,20 @@ function createIcon(value) {
     for (let x = 0; x < 3; x++) {
 
 
-      num = (
-        num * 1103515245 + 12345
-      ) % 2147483648;
+      num =
+        (num * 1103515245 + 12345)
+        % 2147483648;
 
 
-      pattern[y][x] = num % 10;
+      pattern[y][x] =
+        num % 10;
 
     }
-
   }
 
 
 
-  // 左右対称に描画
+  // 左右対称で描画
   for (let y = 0; y < 5; y++) {
 
 
@@ -132,14 +133,15 @@ function createIcon(value) {
 
 
 
-      const shape = getShape(
-        pattern[y][sourceX]
-      );
+      const shape =
+        getShape(
+          pattern[y][sourceX]
+        );
 
 
 
+      // 四角
       if (shape === "square") {
-
 
         const rect =
           document.createElementNS(
@@ -180,8 +182,8 @@ function createIcon(value) {
 
 
 
+      // 丸
       if (shape === "circle") {
-
 
         const circle =
           document.createElementNS(
@@ -195,18 +197,15 @@ function createIcon(value) {
           x * size + size / 2
         );
 
-
         circle.setAttribute(
           "cy",
           y * size + size / 2
         );
 
-
         circle.setAttribute(
           "r",
           size / 2
         );
-
 
         circle.setAttribute(
           "fill",
@@ -232,7 +231,7 @@ function createIcon(value) {
 
 
 
-// ボタン
+// 生成ボタン
 generate.onclick = () => {
 
   createIcon(
@@ -242,5 +241,130 @@ generate.onclick = () => {
 };
 
 
-// 初期アイコン
+
+
+// SVGダウンロード
+document.getElementById("downloadSVG").onclick = () => {
+
+
+  const blob =
+    new Blob(
+      [currentSVG],
+      {
+        type: "image/svg+xml"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement("a");
+
+
+  a.href = url;
+
+  a.download =
+    "icon.svg";
+
+
+  a.click();
+
+
+  URL.revokeObjectURL(url);
+
+};
+
+
+
+
+
+// 透明PNGダウンロード
+document.getElementById("downloadPNG").onclick = () => {
+
+
+  const svgData =
+    new XMLSerializer()
+      .serializeToString(icon);
+
+
+
+  const canvas =
+    document.createElement("canvas");
+
+
+  canvas.width = 250;
+  canvas.height = 250;
+
+
+  const ctx =
+    canvas.getContext("2d");
+
+
+
+  const img =
+    new Image();
+
+
+
+  const blob =
+    new Blob(
+      [svgData],
+      {
+        type: "image/svg+xml"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+
+  img.onload = () => {
+
+
+    // 背景を書かず透明維持
+    ctx.drawImage(
+      img,
+      0,
+      0
+    );
+
+
+    URL.revokeObjectURL(url);
+
+
+
+    const png =
+      canvas.toDataURL(
+        "image/png"
+      );
+
+
+    const a =
+      document.createElement("a");
+
+
+    a.href = png;
+
+
+    a.download =
+      "icon-transparent.png";
+
+
+    a.click();
+
+  };
+
+
+  img.src = url;
+
+};
+
+
+
+// 最初の表示
 createIcon("hello");
